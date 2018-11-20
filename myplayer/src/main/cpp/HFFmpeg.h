@@ -32,6 +32,10 @@ public:
     bool exit = false;
     int duration = 0;
     pthread_mutex_t seek_mutex;
+
+    //硬解码相关
+    bool supportMediacodec = false;
+    const AVBitStreamFilter *bsFilter = NULL;
 public:
     HFFmpeg(HPlaystatus *playstatus, HCallJava *callJava, const char *url);
     ~HFFmpeg();

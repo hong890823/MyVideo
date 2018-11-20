@@ -9,8 +9,10 @@ import android.os.Message;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.hong.myplayer.HTimeInfoBean;
 import com.hong.myplayer.listener.HOnCompleteListener;
 import com.hong.myplayer.listener.HOnErrorListener;
 import com.hong.myplayer.listener.HOnLoadListener;
@@ -20,11 +22,14 @@ import com.hong.myplayer.listener.HOnTimeInfoListener;
 import com.hong.myplayer.log.MyLog;
 import com.hong.myplayer.opengl.HGLSurfaceView;
 import com.hong.myplayer.player.HPlayer;
-import com.ywl5320.myplayer.HTimeInfoBean;
+import com.hong.myplayer.util.HTimeUtil;
 
 public class MainActivity extends AppCompatActivity {
     private HPlayer wlPlayer;
     private TextView tvTime;
+    private SeekBar seekBar;
+    private int position;//seek的进度
+    private boolean isSeeking;//是否正在seek
 
     private static final int REQUEST_EXTERNAL=1;
     private static String[] PERMISSIONS= {
@@ -117,6 +122,25 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        seekBar = findViewById(R.id.video_seek_view);
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                int totalTime = wlPlayer.getDuration();
+                position = totalTime*progress/100;
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                isSeeking = true;
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                wlPlayer.seek(position);
+                isSeeking = false;
+            }
+        });
     }
 
     public void begin(View view) {
@@ -130,9 +154,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void pause(View view) {
-
         wlPlayer.pause();
-
     }
 
     public void resume(View view) {
@@ -145,19 +167,20 @@ public class MainActivity extends AppCompatActivity {
             super.handleMessage(msg);
             if(msg.what == 1)
             {
-                HTimeInfoBean wlTimeInfoBean = (HTimeInfoBean) msg.obj;
-                tvTime.setText(com.ywl5320.myplayer.util.HTimeUtil.secdsToDateFormat(wlTimeInfoBean.getTotalTime(), wlTimeInfoBean.getTotalTime())
-                + "/" + com.ywl5320.myplayer.util.HTimeUtil.secdsToDateFormat(wlTimeInfoBean.getCurrentTime(), wlTimeInfoBean.getTotalTime()));
+                HTimeInfoBean timeInfoBean = (HTimeInfoBean) msg.obj;
+                tvTime.setText(HTimeUtil.secdsToDateFormat(timeInfoBean.getTotalTime(), timeInfoBean.getTotalTime())
+                + "/" + HTimeUtil.secdsToDateFormat(timeInfoBean.getCurrentTime(), timeInfoBean.getTotalTime()));
+
+                if(!isSeeking && timeInfoBean.getTotalTime()>0){
+                    seekBar.setProgress(timeInfoBean.getCurrentTime()*100/timeInfoBean.getTotalTime());
+                }
+
             }
         }
     };
 
     public void stop(View view) {
         wlPlayer.stop();
-    }
-
-    public void seek(View view) {
-        wlPlayer.seek(100);
     }
 
     public void next(View view) {

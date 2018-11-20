@@ -26,7 +26,9 @@ public:
     jmethodID jmid_error;
     jmethodID jmid_complete;
     jmethodID jmid_renderyuv;
-
+    jmethodID jmid_supportvideo;//该video是否支持硬解
+    jmethodID jmid_initmediacodec;
+    jmethodID jmid_decodeavpacket;
 public:
     HCallJava(_JavaVM *javaVM, JNIEnv *env, jobject *obj);
     ~HCallJava();
@@ -43,6 +45,11 @@ public:
 
     void onCallRenderYUV(int width, int height, uint8_t *fy, uint8_t *fu, uint8_t *fv);
 
+    bool onCallIsSupportVideo(const char *ffcodecname);
+
+    void onCallInitMediaCodec(const char *mime, int width, int height, int csd0_size, int csd1_size, uint8_t *csd_0, uint8_t *csd_1);
+
+    void onCallDecodeAVPacket(int datasize, uint8_t *data);
 };
 
 

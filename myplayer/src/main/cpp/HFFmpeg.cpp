@@ -140,6 +140,57 @@ void HFFmpeg::start() {
     }
     video->audio = audio;
 
+
+
+    const char* codecName = ((const AVCodec*)video->avCodecContext->codec)->name;
+    supportMediacodec = callJava->onCallIsSupportVideo(codecName);
+    if(supportMediacodec)
+    {
+        LOGE("当前设备支持硬解码当前视频");
+        if(strcasecmp(codecName,"h264")==0){
+            bsFilter = av_bsf_get_by_name("h264_mp4toannexb");
+        }else if(strcasecmp(codecName,"h265")==0){
+            bsFilter = av_bsf_get_by_name("hevc_mp4toannexb");
+        }
+        if(bsFilter==NULL){
+            goto end;
+        }
+        if(av_bsf_alloc(bsFilter, &video->abs_ctx) != 0){
+            supportMediacodec = false;
+            goto end;
+        }
+        if(avcodec_parameters_copy(video->abs_ctx->par_in, video->codecpar) < 0){
+            supportMediacodec = false;
+            av_bsf_free(&video->abs_ctx);
+            video->abs_ctx = NULL;
+            goto end;
+        }
+        if(av_bsf_init(video->abs_ctx) != 0){
+            supportMediacodec = false;
+            av_bsf_free(&video->abs_ctx);
+            video->abs_ctx = NULL;
+            goto end;
+        }
+        video->abs_ctx->time_base_in = video->time_base;
+    }
+    end:
+//    supportMediacodec = false;//如果要纯软解才放开
+    if(supportMediacodec)
+    {
+        video->codectype = CODEC_MEDIACODEC;
+        video->callJava->onCallInitMediaCodec(
+                codecName,
+                video->avCodecContext->width,
+                video->avCodecContext->height,
+                video->avCodecContext->extradata_size,
+                video->avCodecContext->extradata_size,
+                video->avCodecContext->extradata,
+                video->avCodecContext->extradata
+        );
+    }
+
+
+
     audio->play();
     video->play();
     while(playstatus != NULL && !playstatus->exit)
@@ -181,7 +232,10 @@ void HFFmpeg::start() {
                     av_usleep(1000 * 100);
                     continue;
                 } else{
-                    playstatus->exit = true;
+                    if(!playstatus->seek){
+                        av_usleep(1000*500);//睡眠500毫秒足够把最后一帧播放出来
+                        playstatus->exit = true;
+                    }
                     break;
                 }
             }

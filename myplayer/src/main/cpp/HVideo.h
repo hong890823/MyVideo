@@ -5,6 +5,8 @@
 #ifndef MYVIDEO_HVIDEO_H
 #define MYVIDEO_HVIDEO_H
 
+#define CODEC_YUV 0
+#define CODEC_MEDIACODEC 1
 
 #include "HQueue.h"
 #include "HCallJava.h"
@@ -39,6 +41,9 @@ public:
 
     //seek过程对avCodecContext的线程锁
     pthread_mutex_t codecMutex;
+
+    int codectype = CODEC_YUV;
+    AVBSFContext *abs_ctx = NULL;
 public:
     HVideo(HPlaystatus *playstatus, HCallJava *wlCallJava);
     ~HVideo();
@@ -46,7 +51,7 @@ public:
     void play();
     void release();
 
-    double getFrameDiffTime(AVFrame *avframe);
+    double getFrameDiffTime(AVFrame *avframe,AVPacket *avPacket);
     double getDelayTime(double diff);
 
 };

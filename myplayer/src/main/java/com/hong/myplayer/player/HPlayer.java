@@ -1,7 +1,11 @@
 package com.hong.myplayer.player;
 
+import android.media.MediaCodec;
+import android.media.MediaFormat;
 import android.text.TextUtils;
+import android.view.Surface;
 
+import com.hong.myplayer.HTimeInfoBean;
 import com.hong.myplayer.listener.HOnCompleteListener;
 import com.hong.myplayer.listener.HOnErrorListener;
 import com.hong.myplayer.listener.HOnLoadListener;
@@ -10,7 +14,10 @@ import com.hong.myplayer.listener.HOnPauseResumeListener;
 import com.hong.myplayer.listener.HOnTimeInfoListener;
 import com.hong.myplayer.log.MyLog;
 import com.hong.myplayer.opengl.HGLSurfaceView;
-import com.ywl5320.myplayer.HTimeInfoBean;
+import com.hong.myplayer.opengl.HRender;
+import com.hong.myplayer.util.HVideoSupportUitl;
+
+import java.nio.ByteBuffer;
 
 /**
  * Created by yangw on 2018-2-28.
@@ -39,8 +46,13 @@ public class HPlayer {
     private HOnTimeInfoListener wlOnTimeInfoListener;
     private HOnErrorListener wlOnErrorListener;
     private HOnCompleteListener wlOnCompleteListener;
-
+    private int duration = 0;
     private HGLSurfaceView surfaceView;
+
+    private MediaFormat mediaFormat;
+    private MediaCodec mediaCodec;
+    private Surface surface;
+    private MediaCodec.BufferInfo info;
 
     public HPlayer()
     {}
@@ -56,6 +68,16 @@ public class HPlayer {
 
     public void setSurfaceView(HGLSurfaceView surfaceView) {
         this.surfaceView = surfaceView;
+        surfaceView.getRender().setOnSurfaceCreateListener(new HRender.OnSurfaceCreateListener() {
+            @Override
+            public void onSurfaceCreate(Surface s) {
+               if(surface==null) surface = s;
+            }
+        });
+    }
+
+    public int getDuration() {
+        return duration;
     }
 
     /**
@@ -139,6 +161,8 @@ public class HPlayer {
     public void stop()
     {
         wlTimeInfoBean = null;
+        duration=0;
+        releaseMediacodec();
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -190,6 +214,7 @@ public class HPlayer {
             {
                 wlTimeInfoBean = new HTimeInfoBean();
             }
+            duration = totalTime;
             wlTimeInfoBean.setCurrentTime(currentTime);
             wlTimeInfoBean.setTotalTime(totalTime);
             wlOnTimeInfoListener.onTimeInfo(wlTimeInfoBean);
@@ -225,7 +250,86 @@ public class HPlayer {
 
     public void onCallRenderYUV(int width,int height,byte[]y,byte[]u,byte[]v){
         MyLog.d("获取到视频的YUV数据");
+        surfaceView.getRender().setRenderType(HRender.RENDER_YUV);
         if(surfaceView!=null)surfaceView.setYUVData(width, height, y, u, v);
+    }
+
+    public boolean onCallIsSupportMediaCodec(String ffcodecname){
+        return HVideoSupportUitl.isSupportCodec(ffcodecname);
+    }
+
+    /**
+     * 初始化MediaCodec
+     * @param codecName
+     * @param width
+     * @param height
+     * @param csd_0
+     * @param csd_1
+     */
+    public void initMediaCodec(String codecName, int width, int height, byte[] csd_0, byte[] csd_1)
+    {
+        if(surface != null)
+        {
+            try {
+                surfaceView.getRender().setRenderType(HRender.RENDER_MEDIACODEC);
+
+                String mime = HVideoSupportUitl.findVideoCodecName(codecName);
+                mediaFormat = MediaFormat.createVideoFormat(mime, width, height);
+                mediaFormat.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, width * height);
+                mediaFormat.setByteBuffer("csd-0", ByteBuffer.wrap(csd_0));
+                mediaFormat.setByteBuffer("csd-1", ByteBuffer.wrap(csd_1));
+                MyLog.d(mediaFormat.toString());
+                mediaCodec = MediaCodec.createDecoderByType(mime);
+
+                info = new MediaCodec.BufferInfo();
+                mediaCodec.configure(mediaFormat, surface, null, 0);
+                mediaCodec.start();
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
+        else
+        {
+            if(wlOnErrorListener != null)
+            {
+                wlOnErrorListener.onError(2001, "surface is null");
+            }
+        }
+    }
+
+    public void decodeAVPacket(int dataSize, byte[] data)
+    {
+        if(surface != null && dataSize > 0 && data != null && mediaCodec!=null)
+        {
+            int intputBufferIndex = mediaCodec.dequeueInputBuffer(10);
+            if(intputBufferIndex >= 0)
+            {
+                ByteBuffer byteBuffer = mediaCodec.getInputBuffers()[intputBufferIndex];
+                byteBuffer.clear();
+                byteBuffer.put(data);
+                mediaCodec.queueInputBuffer(intputBufferIndex, 0, dataSize, 0, 0);
+            }
+            int outputBufferIndex = mediaCodec.dequeueOutputBuffer(info, 10);
+            while(outputBufferIndex >= 0)
+            {
+                mediaCodec.releaseOutputBuffer(outputBufferIndex, true);
+                outputBufferIndex = mediaCodec.dequeueOutputBuffer(info, 10);
+            }
+        }
+    }
+    private void releaseMediacodec(){
+        if(mediaCodec != null){
+            mediaCodec.flush();
+            mediaCodec.stop();
+            mediaCodec.release();
+
+            mediaCodec = null;
+            mediaFormat = null;
+            info = null;
+        }
+
     }
 
     private native void n_parpared(String source);
@@ -233,7 +337,7 @@ public class HPlayer {
     private native void n_pause();
     private native void n_resume();
     private native void n_stop();
-    private native void n_seek(int secds);
+    private native void n_seek(int seconds);
 
 
 

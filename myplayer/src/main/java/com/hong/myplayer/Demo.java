@@ -1,4 +1,4 @@
-package com.ywl5320.myplayer;
+package com.hong.myplayer;
 
 /**
  * Created by yangw on 2018-1-31.

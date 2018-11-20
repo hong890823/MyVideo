@@ -47,13 +47,6 @@
           android:layout_width="0dp"
           android:layout_weight="1"
           android:layout_height="wrap_content"
-          android:text="Seek"
-          android:onClick="seek"/>
-
-      <Button
-          android:layout_width="0dp"
-          android:layout_weight="1"
-          android:layout_height="wrap_content"
           android:text="切换"
           android:onClick="next"/>
    </LinearLayout>
@@ -66,5 +59,10 @@
        android:layout_marginLeft="10dp"
        android:layout_marginTop="20dp"
        android:text="00:00/00:00"/>
+
+   <SeekBar
+       android:id="@+id/video_seek_view"
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content" />
 
 </LinearLayout>

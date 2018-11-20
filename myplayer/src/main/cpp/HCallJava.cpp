@@ -27,7 +27,9 @@ HCallJava::HCallJava(_JavaVM *javaVM, JNIEnv *env, jobject *obj) {
     jmid_error = env->GetMethodID(jlz, "onCallError", "(ILjava/lang/String;)V");
     jmid_complete = env->GetMethodID(jlz, "onCallComplete", "()V");
     jmid_renderyuv = env->GetMethodID(jlz, "onCallRenderYUV", "(II[B[B[B)V");
-
+    jmid_supportvideo = env->GetMethodID(jlz, "onCallIsSupportMediaCodec", "(Ljava/lang/String;)Z");
+    jmid_initmediacodec = env->GetMethodID(jlz, "initMediaCodec", "(Ljava/lang/String;II[B[B)V");
+    jmid_decodeavpacket = env->GetMethodID(jlz, "decodeAVPacket", "(I[B)V");
 }
 
 void HCallJava::onCallParpared(int type) {
@@ -174,5 +176,66 @@ void HCallJava::onCallRenderYUV(int width, int height, uint8_t *fy, uint8_t *fu,
     jniEnv->DeleteLocalRef(u);
     jniEnv->DeleteLocalRef(v);
 
+    javaVM->DetachCurrentThread();
+}
+
+bool HCallJava::onCallIsSupportVideo(const char *ffcodecname) {
+    bool support = false;
+    JNIEnv *jniEnv;
+    if(javaVM->AttachCurrentThread(&jniEnv, 0) != JNI_OK)
+    {
+        if(LOG_DEBUG)
+        {
+            LOGE("call onCallComplete worng");
+        }
+        return support;
+    }
+
+    jstring type = jniEnv->NewStringUTF(ffcodecname);
+    support = jniEnv->CallBooleanMethod(jobj, jmid_supportvideo, type);
+    jniEnv->DeleteLocalRef(type);
+    javaVM->DetachCurrentThread();
+    return support;
+}
+
+void HCallJava::onCallInitMediaCodec(const char* mime, int width, int height, int csd0_size, int csd1_size, uint8_t *csd_0, uint8_t *csd_1) {
+
+    JNIEnv *jniEnv;
+    if(javaVM->AttachCurrentThread(&jniEnv, 0) != JNI_OK)
+    {
+        if(LOG_DEBUG)
+        {
+            LOGE("call onCallComplete worng");
+        }
+    }
+
+    jstring type = jniEnv->NewStringUTF(mime);
+    jbyteArray csd0 = jniEnv->NewByteArray(csd0_size);
+    jniEnv->SetByteArrayRegion(csd0, 0, csd0_size, reinterpret_cast<const jbyte *>(csd_0));
+    jbyteArray csd1 = jniEnv->NewByteArray(csd1_size);
+    jniEnv->SetByteArrayRegion(csd1, 0, csd1_size, reinterpret_cast<const jbyte *>(csd_1));
+
+    jniEnv->CallVoidMethod(jobj, jmid_initmediacodec, type, width, height, csd0, csd1);
+
+    jniEnv->DeleteLocalRef(csd0);
+    jniEnv->DeleteLocalRef(csd1);
+    jniEnv->DeleteLocalRef(type);
+    javaVM->DetachCurrentThread();
+
+}
+
+void HCallJava::onCallDecodeAVPacket(int datasize, uint8_t *packetdata) {
+    JNIEnv *jniEnv;
+    if(javaVM->AttachCurrentThread(&jniEnv, 0) != JNI_OK)
+    {
+        if(LOG_DEBUG)
+        {
+            LOGE("call onCallComplete worng");
+        }
+    }
+    jbyteArray data = jniEnv->NewByteArray(datasize);
+    jniEnv->SetByteArrayRegion(data, 0, datasize, reinterpret_cast<const jbyte *>(packetdata));
+    jniEnv->CallVoidMethod(jobj, jmid_decodeavpacket, datasize, data);
+    jniEnv->DeleteLocalRef(data);
     javaVM->DetachCurrentThread();
 }
