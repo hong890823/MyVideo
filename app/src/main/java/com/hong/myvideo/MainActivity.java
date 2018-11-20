@@ -184,6 +184,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void next(View view) {
-        //wlPlayer.playNext("/mnt/shared/Other/testvideo/楚乔传第一集.mp4");
+        String path = "mnt/shared/Other/屌丝男士.mov";
+        wlPlayer.playNext(path);
     }
 }

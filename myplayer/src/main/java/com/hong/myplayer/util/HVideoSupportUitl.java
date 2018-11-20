@@ -12,11 +12,11 @@ public class HVideoSupportUitl {
         codecMap.put("h264", "video/avc");
     }
 
-    public static String findVideoCodecName(String ffcodename)
+    public static String findVideoCodecName(String ffcodeName)
     {
-        if(codecMap.containsKey(ffcodename))
+        if(codecMap.containsKey(ffcodeName))
         {
-            return codecMap.get(ffcodename);
+            return codecMap.get(ffcodeName);
         }
         return "";
     }

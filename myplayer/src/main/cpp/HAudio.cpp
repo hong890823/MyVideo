@@ -24,13 +24,14 @@ void *decodePlay(void *data)
 
     wlAudio->initOpenSLES();
 
-    pthread_exit(&wlAudio->thread_play);
+//    pthread_exit(&wlAudio->thread_play);
+    return 0;
 }
 
 void HAudio::play() {
-
-    pthread_create(&thread_play, NULL, decodePlay, this);
-
+    if(playstatus!=NULL && !playstatus->exit){
+        pthread_create(&thread_play, NULL, decodePlay, this);
+    }
 }
 
 int HAudio::resampleAudio() {
@@ -301,6 +302,10 @@ void HAudio::resume() {
 }
 
 void HAudio::release() {
+    if(queue!=NULL){
+        queue->noticeQueue();
+    }
+    pthread_join(thread_play,NULL);
 
     if(queue != NULL)
     {

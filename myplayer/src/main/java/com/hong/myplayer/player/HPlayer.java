@@ -162,11 +162,11 @@ public class HPlayer {
     {
         wlTimeInfoBean = null;
         duration=0;
-        releaseMediacodec();
         new Thread(new Runnable() {
             @Override
             public void run() {
                 n_stop();
+                releaseMediaCodec();
             }
         }).start();
     }
@@ -303,28 +303,36 @@ public class HPlayer {
     {
         if(surface != null && dataSize > 0 && data != null && mediaCodec!=null)
         {
-            int intputBufferIndex = mediaCodec.dequeueInputBuffer(10);
-            if(intputBufferIndex >= 0)
-            {
-                ByteBuffer byteBuffer = mediaCodec.getInputBuffers()[intputBufferIndex];
-                byteBuffer.clear();
-                byteBuffer.put(data);
-                mediaCodec.queueInputBuffer(intputBufferIndex, 0, dataSize, 0, 0);
+            try{
+                int intputBufferIndex = mediaCodec.dequeueInputBuffer(10);
+                if(intputBufferIndex >= 0)
+                {
+                    ByteBuffer byteBuffer = mediaCodec.getInputBuffers()[intputBufferIndex];
+                    byteBuffer.clear();
+                    byteBuffer.put(data);
+                    mediaCodec.queueInputBuffer(intputBufferIndex, 0, dataSize, 0, 0);
+                }
+                int outputBufferIndex = mediaCodec.dequeueOutputBuffer(info, 10);
+                while(outputBufferIndex >= 0)
+                {
+                    mediaCodec.releaseOutputBuffer(outputBufferIndex, true);
+                    outputBufferIndex = mediaCodec.dequeueOutputBuffer(info, 10);
+                }
+            }catch(Exception e){
+                e.printStackTrace();
             }
-            int outputBufferIndex = mediaCodec.dequeueOutputBuffer(info, 10);
-            while(outputBufferIndex >= 0)
-            {
-                mediaCodec.releaseOutputBuffer(outputBufferIndex, true);
-                outputBufferIndex = mediaCodec.dequeueOutputBuffer(info, 10);
-            }
+
         }
     }
-    private void releaseMediacodec(){
+    private void releaseMediaCodec(){
         if(mediaCodec != null){
-            mediaCodec.flush();
-            mediaCodec.stop();
-            mediaCodec.release();
-
+            try{
+                mediaCodec.flush();
+                mediaCodec.stop();
+                mediaCodec.release();
+            }catch(Exception e){
+                e.printStackTrace();
+            }
             mediaCodec = null;
             mediaFormat = null;
             info = null;

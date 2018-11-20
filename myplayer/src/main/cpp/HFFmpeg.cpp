@@ -17,13 +17,12 @@ void *decodeFFmpeg(void *data)
 {
     HFFmpeg *wlFFmpeg = (HFFmpeg *) data;
     wlFFmpeg->decodeFFmpegThread();
-    pthread_exit(&wlFFmpeg->decodeThread);
+//    pthread_exit(&wlFFmpeg->decodeThread);
+    return 0;
 }
 
 void HFFmpeg::parpared() {
-
     pthread_create(&decodeThread, NULL, decodeFFmpeg, this);
-
 }
 
 int avformat_callback(void *ctx)
@@ -276,11 +275,14 @@ void HFFmpeg::resume() {
 void HFFmpeg::release() {
 
     if(LOG_DEBUG)
-    {
         LOGE("开始释放Ffmpeg");
-    }
+
     playstatus->exit = true;
+
+    pthread_join(decodeThread, NULL);
+
     pthread_mutex_lock(&init_mutex);
+
     int sleepCount = 0;
     while (!exit)
     {
@@ -307,7 +309,16 @@ void HFFmpeg::release() {
         delete(audio);
         audio = NULL;
     }
-
+    if(LOG_DEBUG)
+    {
+        LOGE("释放 video");
+    }
+    if(video != NULL)
+    {
+        video->release();
+        delete(video);
+        video = NULL;
+    }
     if(LOG_DEBUG)
     {
         LOGE("释放 封装格式上下文");

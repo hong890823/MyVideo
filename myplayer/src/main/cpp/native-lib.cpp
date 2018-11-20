@@ -56,7 +56,8 @@ void *startCallBack(void *data)
 {
     HFFmpeg *fFmpeg = (HFFmpeg *) data;
     fFmpeg->start();
-    pthread_exit(&thread_start);
+//    pthread_exit(&thread_start);
+    return 0;
 }
 
 extern "C"
@@ -92,12 +93,8 @@ Java_com_hong_myplayer_player_HPlayer_n_1resume(JNIEnv *env, jobject instance) {
 }extern "C"
 JNIEXPORT void JNICALL
 Java_com_hong_myplayer_player_HPlayer_n_1stop(JNIEnv *env, jobject instance) {
-
-    // TODO
     if(!nexit)
-    {
         return;
-    }
 
     jclass clz = env->GetObjectClass(instance);
     jmethodID jmid_next = env->GetMethodID(clz, "onCallNext", "()V");
@@ -106,6 +103,7 @@ Java_com_hong_myplayer_player_HPlayer_n_1stop(JNIEnv *env, jobject instance) {
     if(fFmpeg != NULL)
     {
         fFmpeg->release();
+        pthread_join(thread_start, NULL);
         delete(fFmpeg);
         fFmpeg = NULL;
         if(callJava != NULL)

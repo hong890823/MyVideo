@@ -16,13 +16,10 @@ HQueue::~HQueue() {
 }
 
 int HQueue::putAvpacket(AVPacket *packet) {
-
     pthread_mutex_lock(&mutexPacket);
-
     queuePacket.push(packet);
     pthread_cond_signal(&condPacket);
     pthread_mutex_unlock(&mutexPacket);
-
     return 0;
 }
 
@@ -75,4 +72,10 @@ void HQueue::clearAvpacket() {
     }
     pthread_mutex_unlock(&mutexPacket);
 
+}
+
+//不要让队列继续阻塞
+void HQueue::noticeQueue() {
+    if(playstatus!=NULL)playstatus->exit=true;
+    pthread_cond_signal(&condPacket);
 }

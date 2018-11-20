@@ -45,7 +45,7 @@ void HCallJava::onCallParpared(int type) {
         {
             if(LOG_DEBUG)
             {
-                LOGE("get child thread jnienv worng");
+                LOGE("get child thread jniEnv wrong");
             }
             return;
         }
@@ -68,7 +68,7 @@ void HCallJava::onCallLoad(int type, bool load) {
         {
             if(LOG_DEBUG)
             {
-                LOGE("call onCallLoad worng");
+                LOGE("call onCallLoad wrong");
             }
             return;
         }
@@ -91,7 +91,7 @@ void HCallJava::onCallTimeInfo(int type, int curr, int total) {
         {
             if(LOG_DEBUG)
             {
-                LOGE("call onCallTimeInfo worng");
+                LOGE("call onCallTimeInfo wrong");
             }
             return;
         }
@@ -118,7 +118,7 @@ void HCallJava::onCallError(int type, int code, char *msg) {
         {
             if(LOG_DEBUG)
             {
-                LOGE("call onCallError worng");
+                LOGE("call onCallError wrong");
             }
             return;
         }
@@ -141,7 +141,7 @@ void HCallJava::onCallComplete(int type) {
         {
             if(LOG_DEBUG)
             {
-                LOGE("call onCallComplete worng");
+                LOGE("call onCallComplete wrong");
             }
             return;
         }
@@ -156,7 +156,7 @@ void HCallJava::onCallRenderYUV(int width, int height, uint8_t *fy, uint8_t *fu,
     {
         if(LOG_DEBUG)
         {
-            LOGE("call onCallComplete worng");
+            LOGE("call onCallRenderYUV wrong");
         }
         return;
     }
@@ -179,19 +179,19 @@ void HCallJava::onCallRenderYUV(int width, int height, uint8_t *fy, uint8_t *fu,
     javaVM->DetachCurrentThread();
 }
 
-bool HCallJava::onCallIsSupportVideo(const char *ffcodecname) {
+bool HCallJava::onCallIsSupportVideo(const char *ffcodecName) {
     bool support = false;
     JNIEnv *jniEnv;
     if(javaVM->AttachCurrentThread(&jniEnv, 0) != JNI_OK)
     {
         if(LOG_DEBUG)
         {
-            LOGE("call onCallComplete worng");
+            LOGE("call onCallIsSupportVideo wrong");
         }
         return support;
     }
 
-    jstring type = jniEnv->NewStringUTF(ffcodecname);
+    jstring type = jniEnv->NewStringUTF(ffcodecName);
     support = jniEnv->CallBooleanMethod(jobj, jmid_supportvideo, type);
     jniEnv->DeleteLocalRef(type);
     javaVM->DetachCurrentThread();
@@ -205,7 +205,7 @@ void HCallJava::onCallInitMediaCodec(const char* mime, int width, int height, in
     {
         if(LOG_DEBUG)
         {
-            LOGE("call onCallComplete worng");
+            LOGE("call onCallInitMediaCodec wrong");
         }
     }
 
@@ -224,18 +224,18 @@ void HCallJava::onCallInitMediaCodec(const char* mime, int width, int height, in
 
 }
 
-void HCallJava::onCallDecodeAVPacket(int datasize, uint8_t *packetdata) {
+void HCallJava::onCallDecodeAVPacket(int dataSize, uint8_t *packetData) {
     JNIEnv *jniEnv;
     if(javaVM->AttachCurrentThread(&jniEnv, 0) != JNI_OK)
     {
         if(LOG_DEBUG)
         {
-            LOGE("call onCallComplete worng");
+            LOGE("call onCallDecodeAVPacket wrong");
         }
     }
-    jbyteArray data = jniEnv->NewByteArray(datasize);
-    jniEnv->SetByteArrayRegion(data, 0, datasize, reinterpret_cast<const jbyte *>(packetdata));
-    jniEnv->CallVoidMethod(jobj, jmid_decodeavpacket, datasize, data);
+    jbyteArray data = jniEnv->NewByteArray(dataSize);
+    jniEnv->SetByteArrayRegion(data, 0, dataSize, reinterpret_cast<const jbyte *>(packetData));
+    jniEnv->CallVoidMethod(jobj, jmid_decodeavpacket, dataSize, data);
     jniEnv->DeleteLocalRef(data);
     javaVM->DetachCurrentThread();
 }

@@ -100,7 +100,7 @@ public class HRender implements GLSurfaceView.Renderer, SurfaceTexture.OnFrameAv
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         initRenderYUV();
-        initRenderMediacodec();
+        initRenderMediaCodec();
     }
 
     @Override
@@ -116,7 +116,7 @@ public class HRender implements GLSurfaceView.Renderer, SurfaceTexture.OnFrameAv
             renderYUV();
         }
         else if(renderType == RENDER_MEDIACODEC){
-            renderMediacodec();
+            renderMediaCodec();
         }
         //不管数据是否符合条件都要画一遍矩形，否则会出现黑色闪屏
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
@@ -205,7 +205,7 @@ public class HRender implements GLSurfaceView.Renderer, SurfaceTexture.OnFrameAv
         }
     }
 
-    private void initRenderMediacodec()
+    private void initRenderMediaCodec()
     {
         String vertexSource = HShaderUtil.readRawTxt(context, R.raw.vertex_shader);
         String fragmentSource = HShaderUtil.readRawTxt(context, R.raw.fragment_mediacodec);
@@ -215,9 +215,9 @@ public class HRender implements GLSurfaceView.Renderer, SurfaceTexture.OnFrameAv
         afPosition_mediacodec = GLES20.glGetAttribLocation(program_mediacodec, "af_Position");
         samplerOES_mediacodec = GLES20.glGetUniformLocation(program_mediacodec, "sTexture");
 
-        int[] textureids = new int[1];
-        GLES20.glGenTextures(1, textureids, 0);
-        textureId_mediacodec = textureids[0];
+        int[] textureIds = new int[1];
+        GLES20.glGenTextures(1, textureIds, 0);
+        textureId_mediacodec = textureIds[0];
 
         GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_REPEAT);
         GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_REPEAT);
@@ -233,7 +233,7 @@ public class HRender implements GLSurfaceView.Renderer, SurfaceTexture.OnFrameAv
         }
     }
 
-    private void renderMediacodec()
+    private void renderMediaCodec()
     {
         surfaceTexture.updateTexImage();
         GLES20.glUseProgram(program_mediacodec);
