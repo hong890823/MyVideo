@@ -8,6 +8,7 @@ import android.opengl.GLSurfaceView;
 import android.view.Surface;
 
 import com.hong.myplayer.R;
+import com.hong.myplayer.log.MyLog;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -122,9 +123,10 @@ public class HRender implements GLSurfaceView.Renderer, SurfaceTexture.OnFrameAv
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
     }
 
-    //SurfaceTexture有数据就会调动这个方法
+    //硬解刷新界面的方法。SurfaceTexture有数据就会调动这个方法，surfacetexture绑定的surface给了mediacodec.
     @Override
     public void onFrameAvailable(SurfaceTexture surfaceTexture) {
+        MyLog.d("onFrameAvailable");
         if(onRenderListener != null) {
             onRenderListener.onRender();
         }

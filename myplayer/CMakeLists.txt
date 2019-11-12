@@ -1,4 +1,3 @@
-
 cmake_minimum_required(VERSION 3.4.1)
 
 include_directories(src/main/cpp/include)
@@ -9,14 +8,14 @@ add_library( # Sets the name of the library.
              SHARED
 
              src/main/cpp/native-lib.cpp
-              src/main/cpp/HAudio.cpp
-              src/main/cpp/HCallJava.cpp
-              src/main/cpp/HFFmpeg.cpp
-              src/main/cpp/HQueue.cpp
-              src/main/cpp/HPlaystatus.cpp
-              src/main/cpp/HVideo.cpp
+             src/main/cpp/HAudio.cpp
+             src/main/cpp/HCallJava.cpp
+             src/main/cpp/HFFmpeg.cpp
+             src/main/cpp/HQueue.cpp
+             src/main/cpp/HPlaystatus.cpp
+             src/main/cpp/HVideo.cpp
 
-              )
+             )
 
 add_library( avcodec-57 SHARED IMPORTED)
 set_target_properties( avcodec-57

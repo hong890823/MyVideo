@@ -246,7 +246,8 @@ double HVideo::getFrameDiffTime(AVFrame *avFrame,AVPacket *avPacket) {
     if(pts>0){ //大于0才可以进行累加
         clock = pts;
     }
-    double diff = audio->clock-clock;
+    double diff = 1.0;
+    if(audio!=NULL) diff = audio->clock-clock;
     return diff;
 }
 

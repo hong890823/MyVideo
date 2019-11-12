@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.ActivityCompat;
@@ -64,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
         wlPlayer.setOnParparedListener(new HOnParparedListener() {
             @Override
             public void onParpared() {
-                MyLog.d("准备好了，可以开始播放声音了");
+                MyLog.d("准备好了，可以开始播放了");
                 wlPlayer.start();
             }
         });
@@ -144,9 +145,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void begin(View view) {
-//        String path = Environment.getExternalStorageDirectory()+"/test.mp4";
+        String path = Environment.getExternalStorageDirectory()+"/屌丝男士.mov";
         //夜神模拟器路径
-        String path = "mnt/shared/Other/欧文.mp4";
+//        String path = "mnt/shared/Other/欧文.mp4";
+//        path = "rtsp://184.72.239.149/vod/mp4://BigBuckBunny_175k.mov";
+//        path = "rtsp://10.1.21.159:8554/channel=0";
+//        path = "rtmp://live.hkstv.hk.lxdns.com/live/hks";
+
+//        path = "rtsp://nps.bjzst.cn:7008/cam/realmonitor";
+        path = "rtsp://10.1.26.189:554/screen111.sdp";
+        path = "http://js.live-play.acgvideo.com/live-js/798500/live_36514186_3847856.flv?wsSecret=9ef2a98b2dab0ea2d0fd8e29285630d9&wsTime=1562665541&trid=10319457c58f48a5afb8f680e92f7f3a&order=1&sig=no";
+        path = "http://baobab.kaiyanapp.com/api/v1/playUrl?vid=172434&resourceType=video&editionType=default&source=aliyun&playUrlType=url_oss";
         wlPlayer.setSource(path);
 //        wlPlayer.setSource("http://mpge.5nd.com/2015/2015-11-26/69708/1.mp3");
 //        wlPlayer.setSource("http://ngcdn004.cnr.cn/live/dszs/index12.m3u8");
@@ -184,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void next(View view) {
-        String path = "mnt/shared/Other/屌丝男士.mov";
+        String path = Environment.getExternalStorageDirectory()+"/建国大业.mpg";
         wlPlayer.playNext(path);
     }
 }

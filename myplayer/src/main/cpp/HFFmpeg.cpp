@@ -129,20 +129,23 @@ void HFFmpeg::decodeFFmpegThread() {
 
 void HFFmpeg::start() {
 
-    if(audio == NULL)
-    {
-        return;
-    }
-    if(video == NULL)
-    {
-        return;
-    }
+    //if(audio == NULL)
+    //{
+     //   return;
+   // }
+   // if(video == NULL)
+   // {
+   //     return;
+   // }
     video->audio = audio;
 
 
 
     const char* codecName = ((const AVCodec*)video->avCodecContext->codec)->name;
     supportMediacodec = callJava->onCallIsSupportVideo(codecName);
+    //如果要纯软解才放开
+//    supportMediacodec = false;
+
     if(supportMediacodec)
     {
         LOGE("当前设备支持硬解码当前视频");
@@ -173,7 +176,7 @@ void HFFmpeg::start() {
         video->abs_ctx->time_base_in = video->time_base;
     }
     end:
-//    supportMediacodec = false;//如果要纯软解才放开
+
     if(supportMediacodec)
     {
         video->codectype = CODEC_MEDIACODEC;
@@ -188,10 +191,8 @@ void HFFmpeg::start() {
         );
     }
 
-
-
-    audio->play();
-    video->play();
+    if(audio!=NULL)audio->play();
+    if(video!=NULL)video->play();
     while(playstatus != NULL && !playstatus->exit)
     {
         if(playstatus->seek)
@@ -200,19 +201,21 @@ void HFFmpeg::start() {
             continue;
         }
         //直播的话缓存区要小一些；如果缓存区不设置的话seek之后视频播放很可能会停止，因为没有缓存区这里很可能已经全部解析完了
-        if(audio->queue->getQueueSize() > 40)
+        if(audio!=NULL && audio->queue->getQueueSize() > 40)
         {
             av_usleep(1000 * 100);
             continue;
         }
         AVPacket *avPacket = av_packet_alloc();
+
         if(av_read_frame(pFormatCtx, avPacket) == 0)
         {
-            if(avPacket->stream_index == audio->streamIndex)
+
+            if(audio!=NULL && avPacket->stream_index == audio->streamIndex)
             {
                 audio->queue->putAvpacket(avPacket);
             }
-            else if(avPacket->stream_index == video->streamIndex)
+            else if(video!=NULL && avPacket->stream_index == video->streamIndex)
             {
                 video->queue->putAvpacket(avPacket);
             }
@@ -226,7 +229,7 @@ void HFFmpeg::start() {
             while(playstatus != NULL && !playstatus->exit)
             {
                 //读取缓存区
-                if(audio->queue->getQueueSize() > 0)
+                if(audio!=NULL && audio->queue->getQueueSize() > 0)
                 {
                     av_usleep(1000 * 100);
                     continue;
@@ -402,7 +405,7 @@ int HFFmpeg::getCodecContext(AVCodecParameters *codecpar, AVCodecContext **avCod
     }
 
     *avCodecContext = avcodec_alloc_context3(dec);
-    if(!audio->avCodecContext)
+    if(audio!=NULL && !audio->avCodecContext)
     {
         if(LOG_DEBUG)
         {
