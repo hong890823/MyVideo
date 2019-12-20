@@ -109,7 +109,7 @@ public class HPlayer {
         this.wlOnCompleteListener = wlOnCompleteListener;
     }
 
-    public void parpared()
+    public void prepare()
     {
         if(TextUtils.isEmpty(source))
         {
@@ -244,7 +244,7 @@ public class HPlayer {
         if(playNext)
         {
             playNext = false;
-            parpared();
+            prepare();
         }
     }
 
