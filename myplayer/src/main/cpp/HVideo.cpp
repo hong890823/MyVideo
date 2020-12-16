@@ -1,6 +1,3 @@
-//
-// Created by yangw on 2018-5-14.
-//
 #include "HVideo.h"
 
 HVideo::HVideo(HPlaystatus *playstatus, HCallJava *callJava) {
@@ -55,7 +52,6 @@ void * playVideo(void *data){
         //拿出avPacket之后就可以进行是硬解码还是软解码的判断了
         if(video->codectype == CODEC_MEDIACODEC)//硬解,不设计avFrame
         {
-//            LOGE("硬解码视频");
             if(av_bsf_send_packet(video->abs_ctx,avPacket)!=0){
                 av_packet_free(&avPacket);
                 av_free(avPacket);
@@ -63,7 +59,6 @@ void * playVideo(void *data){
                 continue;
             }
             while(av_bsf_receive_packet(video->abs_ctx,avPacket)==0){
-//                LOGE("开始解码");
                 //音视频同步（音频不变，视频跟随音频的方式）
                 double diff = video->getFrameDiffTime(NULL,avPacket);
                 LOGE("diff is %f", diff);

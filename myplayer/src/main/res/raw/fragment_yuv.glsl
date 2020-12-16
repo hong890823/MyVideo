@@ -5,6 +5,7 @@ uniform sampler2D sampler_u;
 uniform sampler2D sampler_v;
 void main() {
     float y,u,v;
+    //r值可以替换成g，b，效果一样
     y = texture2D(sampler_y,v_texPosition).r;
     u = texture2D(sampler_u,v_texPosition).r- 0.5;
     v = texture2D(sampler_v,v_texPosition).r- 0.5;
@@ -16,3 +17,9 @@ void main() {
 
     gl_FragColor = vec4(rgb,1);
 }
+
+
+/*
+precision mediump float：片元着色器的精度，这里是中等
+这里的vec4又变成了r,g,b,a了...
+*/

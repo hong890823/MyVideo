@@ -3,8 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/MyVideo.iml" filepath="$PROJECT_DIR$/MyVideo.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/myplayer/myplayer.iml" filepath="$PROJECT_DIR$/myplayer/myplayer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/MyVideo.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/MyVideo.app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/myplayer/MyVideo.myplayer.iml" filepath="$PROJECT_DIR$/.idea/modules/myplayer/MyVideo.myplayer.iml" />
     </modules>
   </component>
 </project>

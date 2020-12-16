@@ -14,7 +14,7 @@ public class HGLSurfaceView extends GLSurfaceView{
 
     public HGLSurfaceView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        setEGLContextClientVersion(2);
+        setEGLContextClientVersion(2);//用OpenGL2.0版本
         render = new HRender(context);
         setRenderer(render);
         //脏模式，调用一次requestRender渲染一次。    GLSurfaceView.RENDERMODE_CONTINUOUSLY则是一直渲染，能达到60帧/秒(相当于16ms一帧)，比较耗费资源

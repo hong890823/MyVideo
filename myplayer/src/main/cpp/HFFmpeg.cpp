@@ -1,7 +1,3 @@
-//
-// Created by yangw on 2018-2-28.
-//
-
 #include "HFFmpeg.h"
 
 HFFmpeg::HFFmpeg(HPlaystatus *playstatus, HCallJava *callJava, const char *url) {
@@ -144,7 +140,7 @@ void HFFmpeg::start() {
     const char* codecName = ((const AVCodec*)video->avCodecContext->codec)->name;
     supportMediacodec = callJava->onCallIsSupportVideo(codecName);
     //如果要纯软解才放开
-//    supportMediacodec = false;
+    supportMediacodec = false;
 
     if(supportMediacodec)
     {

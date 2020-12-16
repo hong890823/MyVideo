@@ -275,13 +275,14 @@ public class HPlayer {
 
                 String mime = HVideoSupportUitl.findVideoCodecName(codecName);
                 mediaFormat = MediaFormat.createVideoFormat(mime, width, height);
-                mediaFormat.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, width * height);
+                mediaFormat.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, width * height);//设置帧率
                 mediaFormat.setByteBuffer("csd-0", ByteBuffer.wrap(csd_0));
                 mediaFormat.setByteBuffer("csd-1", ByteBuffer.wrap(csd_1));
                 MyLog.d(mediaFormat.toString());
                 mediaCodec = MediaCodec.createDecoderByType(mime);
 
                 info = new MediaCodec.BufferInfo();
+                //crypto:数据加密 flags:编码器/编码器
                 mediaCodec.configure(mediaFormat, surface, null, 0);
                 mediaCodec.start();
             }
@@ -310,12 +311,12 @@ public class HPlayer {
                     ByteBuffer byteBuffer = mediaCodec.getInputBuffers()[intputBufferIndex];
                     byteBuffer.clear();
                     byteBuffer.put(data);
-                    mediaCodec.queueInputBuffer(intputBufferIndex, 0, dataSize, 0, 0);
+                    mediaCodec.queueInputBuffer(intputBufferIndex, 0, dataSize, 0, 0);//入队列
                 }
-                int outputBufferIndex = mediaCodec.dequeueOutputBuffer(info, 10);
+                int outputBufferIndex = mediaCodec.dequeueOutputBuffer(info, 10);//解码
                 while(outputBufferIndex >= 0)
                 {
-                    mediaCodec.releaseOutputBuffer(outputBufferIndex, true);
+                    mediaCodec.releaseOutputBuffer(outputBufferIndex, true);//释放资源，调用了之后surfaceview才有了图像
                     outputBufferIndex = mediaCodec.dequeueOutputBuffer(info, 10);
                 }
             }catch(Exception e){
